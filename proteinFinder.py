@@ -129,7 +129,7 @@ class NCBI:
         esearch_URL = base_URL + "esearch.fcgi/"
 
         # Parameters
-        apiKey = "29e1f3c4b1c02f783e7657ebf4b3992cce09"
+        apiKey = "" # PUT YOUR KEY HERE FOR FASTER QUERY
         dbName = db
         outFormat = outFormat
         resLst = []
@@ -156,8 +156,8 @@ class NCBI:
                 print(response.status_code)
 
             resLst.append(response)
-            # NCBI only allowes 10 querys per second
-            time.sleep(0.1)
+            # NCBI only allowes 10 querys per second with Key
+            time.sleep(0.4)
         return resLst
 
     def getNcbiIdFromResponse(self, resLst, queryLst):
