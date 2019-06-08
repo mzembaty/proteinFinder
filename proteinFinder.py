@@ -157,7 +157,10 @@ class NCBI:
 
             resLst.append(response)
             # NCBI only allowes 10 querys per second with Key
-            time.sleep(0.4)
+            if apiKey:
+                time.sleep(0.1)
+            else:
+                time.sleep(0.4)
         return resLst
 
     def getNcbiIdFromResponse(self, resLst, queryLst):
