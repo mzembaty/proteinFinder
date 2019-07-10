@@ -152,14 +152,21 @@ Uniprot can be searched in two ways.
 
 ### Query with search terms
 
-    python3 proteinFinder.py genes.csv proteinInformation.csv uniprot
+    python3 proteinFinder.py inputFile outputFile uniprot
 
 First it can be searched by search terms. This takes a long time since
 every term needs to make its own request to the database.
 
+The results can be filtered for a specific organism with the --organism flag
+followed by the species name. For trustworthy results it is recommended to input
+the UniProt taxon id, found on the website.
+
+    python3 proteinFinder.py inputFile outputFile uniprot --organism "Dinoroseobacter shibae"
+    python3 proteinFinder.py inputFile outputFile uniprot --organism 398580
+
 ### Query with IDs
 
-    python3 proteinFinder.py genes.csv proteinInformation.csv uniprot --inputDataType id
+    python3 proteinFinder.py inputFile outputFile uniprot --inputDataType id
 
 The second way is to search by ID. To search with IDs the parameter
 --inputDataType needs to be set to 'id'.
@@ -170,6 +177,42 @@ accession number. For this the database has to specified from which
 the data come from. The database can be set with the argument --idType.
 A list of all available databases can be found
 [here](https://www.uniprot.org/help/api_idmapping).
+
+### Columns
+
+With UniProt querys the information, which should be retrieved, can be
+controled with the --columns flag. The column names have to be seperated by a comma. All possible columns are listed on
+the [UniProt website] (https://www.uniprot.org/help/uniprotkb_column_names).
+
+    python3 proteinFinder.py inputFile outputFile uniprot --columns "id,keywords,genes,organism"
+
+
+If not specified the default values are:
+* id
+* protein names
+* genes
+* existence
+* organism
+* ec
+* feature(METAL BINDING)
+* keywords
+* comment(PATHWAY)
+* comment(SUBCELLULAR LOCATION)
+* comment(DOMAIN)
+* families
+* sequence
+
+Searching NCBI + Uniprot
+------------------------
+To search both databases consecutive there is a shortcut.
+
+    python3 proteinFinder.py inputFile outputFile ncbi+uniprot
+
+The results of the NCBI search will be the input of the UniProt search
+and the final results will be saved in the outputFile. The same flags are
+avialable for this shortcut as for the single commands.
+
+    python3 proteinFinder.py genes.csv proteinInformation.csv  ncbi+uniprot --inputDataType --database db --organism species --inputDataType id --columns columns 
 
 ----------------
 
