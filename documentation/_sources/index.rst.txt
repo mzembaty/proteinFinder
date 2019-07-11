@@ -1,0 +1,26 @@
+.. Protein Finder documentation master file, created by
+   sphinx-quickstart on Sun Jun  2 01:26:08 2019.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
+==========================================
+Welcome to Protein Finder's documentation!
+==========================================
+
+This is a Python script for pulling data out of `NCBI <https://www.ncbi.nlm.nih.gov/>`_
+and `Uniprot <https://www.uniprot.org/>`_ using their APIs. It programmatically
+downloads all information found for given search terms in the databases. It
+saves biologists hours or even days of time.
+
+These instructions illustrate all the major features of Protein Finder, with
+examples. It shows what the script is good for, how to use it and how to
+extend its functions.
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
+   source/quickstart
+   source/proteinFinder
+..    source/modules
+

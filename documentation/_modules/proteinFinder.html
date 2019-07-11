@@ -1,0 +1,576 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>proteinFinder &#8212; Protein Finder 0.9 documentation</title>
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Protein Finder 0.9 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for proteinFinder</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">csv</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">io</span> <span class="k">import</span> <span class="n">StringIO</span>
+
+
+<span class="c1">####################</span>
+<span class="c1"># Custome Errors ##</span>
+<span class="c1">##################</span>
+
+
+<span class="c1">###############</span>
+<span class="c1"># Functions ##</span>
+<span class="c1">#############</span>
+<div class="viewcode-block" id="initArguments"><a class="viewcode-back" href="../source/proteinFinder.html#proteinFinder.initArguments">[docs]</a><span class="k">def</span> <span class="nf">initArguments</span><span class="p">():</span>
+    <span class="n">information</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;id,protein names,genes,existence,organism,ec,&#39;</span>
+                   <span class="s1">&#39;feature(METAL BINDING),keywords,comment(PATHWAY),&#39;</span>
+                   <span class="s1">&#39;comment(SUBCELLULAR LOCATION),comment(DOMAIN),families,&#39;</span>
+                   <span class="s1">&#39;sequence&#39;</span><span class="p">)</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;inputFile&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to csv&quot;</span>
+                        <span class="s2">&quot;file with query strings&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;outputFile&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to file the results should be&quot;</span>
+                        <span class="s2">&quot;saved&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;website&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Which website should be queried&quot;</span><span class="p">,</span>
+                        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;ncbi&#39;</span><span class="p">,</span> <span class="s1">&#39;uniprot&#39;</span><span class="p">,</span> <span class="s1">&#39;ncbi+uniprot&#39;</span><span class="p">])</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--noheaders&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;When reading input csv does not&quot;</span>
+                        <span class="s2">&quot;skip first row&quot;</span><span class="p">,</span>
+                        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-db&quot;</span><span class="p">,</span> <span class="s2">&quot;--database&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Database which should&quot;</span>
+                        <span class="s2">&quot;be queried&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;protein&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-c&quot;</span><span class="p">,</span> <span class="s2">&quot;--columns&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;When quiering Uniprot,&quot;</span>
+                        <span class="s2">&quot;depicts, which type of information should be&quot;</span>
+                        <span class="s2">&quot;downloaded. Terms have to be comma seperated&quot;</span><span class="p">,</span>
+                        <span class="n">default</span><span class="o">=</span><span class="n">information</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--organism&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Narrow down the search to&quot;</span>
+                        <span class="s2">&quot;specified organism&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-i&quot;</span><span class="p">,</span> <span class="s2">&quot;--inputDataType&quot;</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;text&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">],</span>
+                        <span class="n">default</span><span class="o">=</span><span class="s1">&#39;text&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Type of data stored in &quot;</span>
+                        <span class="s2">&quot;input File&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--idType&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;What database the IDs are from?&quot;</span><span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">args</span></div>
+
+
+<div class="viewcode-block" id="readQueryFile"><a class="viewcode-back" href="../source/proteinFinder.html#proteinFinder.readQueryFile">[docs]</a><span class="k">def</span> <span class="nf">readQueryFile</span><span class="p">(</span><span class="n">srcFile</span><span class="p">,</span> <span class="n">noheaders</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Read query strings from .csv file</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">        srcFile: string</span>
+<span class="sd">            Path to .csv file with query strings in first column.</span>
+
+<span class="sd">        noheaders: boolean</span>
+<span class="sd">            If true, first row of csv file will be skipped.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">        queryLst: list[string]</span>
+<span class="sd">            List of query strings the databse should be searched for.</span>
+
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">srcFile</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">reader</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">noheaders</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="nb">next</span><span class="p">(</span><span class="n">reader</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="c1"># Feedback</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Skipping headers&quot;</span><span class="p">)</span>
+        <span class="n">queryLst</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">orgaLst</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">reader</span><span class="p">:</span>
+            <span class="n">queryLst</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">orgaLst</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">pass</span>
+        <span class="c1"># TODO add Organism</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">queryLst</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;No data loaded&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">queryLst</span><span class="p">,</span> <span class="n">orgaLst</span></div>
+
+
+<div class="viewcode-block" id="NCBI"><a class="viewcode-back" href="../source/proteinFinder.html#proteinFinder.NCBI">[docs]</a><span class="k">class</span> <span class="nc">NCBI</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;Object handling ncbi API</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    queryLst: list of str</span>
+<span class="sd">        List with query strings the database should be searched for.</span>
+<span class="sd">    db: str</span>
+<span class="sd">        Name of the database, that should be searched in. Full list of options</span>
+<span class="sd">        under:</span>
+<span class="sd">        https://www.ncbi.nlm.nih.gov/books/NBK25497/table/chapter2.T._entrez_unique_identifiers_ui/?report=objectonly</span>
+
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queryLst</span><span class="p">,</span> <span class="n">db</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">queryLst</span> <span class="o">=</span> <span class="n">queryLst</span>
+
+<div class="viewcode-block" id="NCBI.queryNcbiDb"><a class="viewcode-back" href="../source/proteinFinder.html#proteinFinder.NCBI.queryNcbiDb">[docs]</a>    <span class="k">def</span> <span class="nf">queryNcbiDb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queryLst</span><span class="p">,</span> <span class="n">db</span><span class="o">=</span><span class="s2">&quot;protein&quot;</span><span class="p">,</span> <span class="n">outFormat</span><span class="o">=</span><span class="s2">&quot;json&quot;</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Querys list of strings in NCBI database</span>
+
+<span class="sd">        Makes http GET request to Query NCBI Entrez Programming Utilities</span>
+<span class="sd">        (E-utilities) and retrieves response. Only 10 querys per second</span>
+<span class="sd">        allowed.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        queryLst: list of str:</span>
+<span class="sd">            List with query strings the database should be searched for.</span>
+<span class="sd">        db: str</span>
+<span class="sd">            Name of the database that should be searched in.</span>
+<span class="sd">        outFormat: str</span>
+<span class="sd">            Output format response from the database (&#39;xml&#39; or &#39;json&#39;).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">            resLst: list of response objects</span>
+<span class="sd">                List of response objects retrieved from the NCBI server</span>
+<span class="sd">                by the GET() call.</span>
+
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">base_URL</span> <span class="o">=</span> <span class="s2">&quot;https://eutils.ncbi.nlm.nih.gov/entrez/eutils/&quot;</span>
+        <span class="n">esearch_URL</span> <span class="o">=</span> <span class="n">base_URL</span> <span class="o">+</span> <span class="s2">&quot;esearch.fcgi/&quot;</span>
+
+        <span class="c1"># Parameters</span>
+        <span class="n">apiKey</span> <span class="o">=</span> <span class="s2">&quot;29e1f3c4b1c02f783e7657ebf4b3992cce09&quot;</span>
+        <span class="n">dbName</span> <span class="o">=</span> <span class="n">db</span>
+        <span class="n">outFormat</span> <span class="o">=</span> <span class="n">outFormat</span>
+        <span class="n">resLst</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">queryLstLength</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">queryLst</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">queryLstLength</span> <span class="o">!=</span> <span class="mi">0</span>
+
+        <span class="c1"># one database request for each query</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">query_term</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">queryLst</span><span class="p">):</span>
+            <span class="c1"># Feedback</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;Query {i+1} of </span><span class="si">{queryLstLength}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+            <span class="c1"># request to database</span>
+            <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;term&#39;</span><span class="p">:</span> <span class="n">query_term</span><span class="p">,</span>
+                <span class="s1">&#39;db&#39;</span><span class="p">:</span> <span class="n">dbName</span><span class="p">,</span>
+                <span class="s1">&#39;retmode&#39;</span><span class="p">:</span> <span class="n">outFormat</span><span class="p">,</span>
+                <span class="s1">&#39;api_key&#39;</span><span class="p">:</span> <span class="n">apiKey</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">esearch_URL</span><span class="p">,</span> <span class="n">payload</span><span class="p">)</span>
+
+            <span class="c1"># handling errors</span>
+            <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">response</span><span class="o">.</span><span class="n">ok</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="p">)</span>
+
+            <span class="n">resLst</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+            <span class="c1"># NCBI only allowes 10 querys per second</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">resLst</span></div>
+
+<div class="viewcode-block" id="NCBI.getNcbiIdFromResponse"><a class="viewcode-back" href="../source/proteinFinder.html#proteinFinder.NCBI.getNcbiIdFromResponse">[docs]</a>    <span class="k">def</span> <span class="nf">getNcbiIdFromResponse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resLst</span><span class="p">,</span> <span class="n">queryLst</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;process json server response / get the matching ids for the query</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        resLst: list of response objects</span>
+<span class="sd">                List of response objects retrieved from the NCBI server.</span>
+<span class="sd">        queryLst: list of str:</span>
+<span class="sd">            List with query strings the database was searched by.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        idsDic:dict</span>
+<span class="sd">            KEY: Query string, VALUE: List of IDs from response.</span>
+
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">resLst</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">queryLst</span><span class="p">)</span>
+        <span class="n">idsLst</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">response</span> <span class="ow">in</span> <span class="n">resLst</span><span class="p">:</span>
+            <span class="n">responseJSON</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+            <span class="nb">id</span> <span class="o">=</span> <span class="n">responseJSON</span><span class="p">[</span><span class="s1">&#39;esearchresult&#39;</span><span class="p">][</span><span class="s1">&#39;idlist&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">id</span><span class="p">:</span>
+                <span class="n">idsLst</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s1">&#39;Not Found&#39;</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">idsLst</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+        <span class="n">idsDic</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">queryLst</span><span class="p">,</span> <span class="n">idsLst</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">idsDic</span></div>
+
+<div class="viewcode-block" id="NCBI.query"><a class="viewcode-back" href="../source/proteinFinder.html#proteinFinder.NCBI.query">[docs]</a>    <span class="k">def</span> <span class="nf">query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queryLst</span><span class="p">,</span> <span class="n">db</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get NCBI IDs from a list of query terms</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        queryLst: list of str:</span>
+<span class="sd">            List with query strings the database was searched by.</span>
+<span class="sd">        db: str</span>
+<span class="sd">            Name of the database that should be searched in.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        idsDic: dict</span>
+<span class="sd">            KEY: Query string, VALUE: List of IDs from response.</span>
+
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">resLst</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">queryNcbiDb</span><span class="p">(</span><span class="n">queryLst</span><span class="p">,</span> <span class="n">db</span><span class="p">)</span>
+        <span class="n">idsDic</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getNcbiIdFromResponse</span><span class="p">(</span><span class="n">resLst</span><span class="p">,</span> <span class="n">queryLst</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">idsDic</span></div>
+
+<div class="viewcode-block" id="NCBI.saveNcbiIDs"><a class="viewcode-back" href="../source/proteinFinder.html#proteinFinder.NCBI.saveNcbiIDs">[docs]</a>    <span class="k">def</span> <span class="nf">saveNcbiIDs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idsDic</span><span class="p">,</span> <span class="n">idLabel</span><span class="p">,</span> <span class="n">outputFile</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Creates a pandas dataframe and saves the table as csv</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        idsDic: dict</span>
+<span class="sd">            KEY: Query string, VALUE: List of IDs from response.</span>
+<span class="sd">        idLabel: str</span>
+<span class="sd">            Label for the IDs retrieved. Is later used as primary key.</span>
+<span class="sd">        outputFile: str</span>
+<span class="sd">            Path the .csv file will be saved in.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        queryDF: pandas data frame</span>
+<span class="sd">            Stores query terms aswell as the matching IDs,</span>
+<span class="sd">            retrieved from database search.</span>
+
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c1"># creates rows for data frame</span>
+        <span class="n">queryDFRows</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">idsDic</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+                <span class="n">queryDFRows</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">key</span><span class="p">,</span> <span class="n">v</span><span class="p">])</span>
+        <span class="n">queryDF</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">queryDFRows</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;query&quot;</span><span class="p">,</span> <span class="n">idLabel</span><span class="p">])</span>
+        <span class="n">queryDF</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">outputFile</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">queryDF</span></div></div>
+<span class="c1"># END CLASS NCBI</span>
+
+
+<div class="viewcode-block" id="Uniprot"><a class="viewcode-back" href="../source/proteinFinder.html#proteinFinder.Uniprot">[docs]</a><span class="k">class</span> <span class="nc">Uniprot</span><span class="p">:</span>
+<div class="viewcode-block" id="Uniprot.queryUniprotID"><a class="viewcode-back" href="../source/proteinFinder.html#proteinFinder.Uniprot.queryUniprotID">[docs]</a>    <span class="k">def</span> <span class="nf">queryUniprotID</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queryStr</span><span class="p">,</span> <span class="n">organismID</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Querys UniProt Database to get accession number of the gene/protein</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        queryStr: str</span>
+<span class="sd">            Query term (gene, protein, ect) to search for in the database.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        accessionNumbers: list of str</span>
+<span class="sd">            List of query results for the search term.</span>
+
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">baseURL</span> <span class="o">=</span> <span class="s1">&#39;https://www.uniprot.org/uniprot/&#39;</span>
+
+        <span class="n">orgQuery</span> <span class="o">=</span> <span class="s1">&#39;+AND+organism:&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">organismID</span><span class="p">)</span>
+        <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;query&#39;</span><span class="p">:</span> <span class="n">queryStr</span> <span class="o">+</span> <span class="n">orgQuery</span><span class="p">,</span> <span class="s1">&#39;sort&#39;</span><span class="p">:</span> <span class="s1">&#39;score&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;format&#39;</span><span class="p">:</span> <span class="s1">&#39;list&#39;</span><span class="p">}</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">baseURL</span><span class="p">,</span> <span class="n">payload</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">ok</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+                <span class="n">accessionNumbers</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">accessionNumbers</span> <span class="o">=</span> <span class="s1">&#39;Not found&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+            <span class="n">accessionNumbers</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="n">accessionNumbers</span></div>
+
+<div class="viewcode-block" id="Uniprot.queryTerms"><a class="viewcode-back" href="../source/proteinFinder.html#proteinFinder.Uniprot.queryTerms">[docs]</a>    <span class="k">def</span> <span class="nf">queryTerms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queryLst</span><span class="p">,</span> <span class="n">organismID</span><span class="p">,</span> <span class="n">outputFormat</span><span class="o">=</span><span class="s1">&#39;list&#39;</span><span class="p">,</span>
+                   <span class="n">sort</span><span class="o">=</span><span class="s1">&#39;score&#39;</span><span class="p">,</span> <span class="n">idLabel</span><span class="o">=</span><span class="s1">&#39;ID_Uniprot&#39;</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Search Uniprot database based on search terms</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        queryLst: list of str:</span>
+<span class="sd">            List with query strings the database was searched by.</span>
+<span class="sd">        organismID: str</span>
+<span class="sd">            Limit the search results to this organism.</span>
+<span class="sd">        outputFormat: str</span>
+<span class="sd">            Type of format from the server. All choices under,</span>
+<span class="sd">            https://www.uniprot.org/help/api_queries .</span>
+<span class="sd">        sort: str</span>
+<span class="sd">            Determines how the results should be sorted.</span>
+<span class="sd">        idLabel: str</span>
+<span class="sd">            Label for the IDs retrieved. Is later used as primary key.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        idDf: pandas data frame</span>
+<span class="sd">            Contains information about query term and retrieved id.</span>
+
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">baseURL</span> <span class="o">=</span> <span class="s1">&#39;https://www.uniprot.org/uniprot/&#39;</span>
+
+        <span class="c1"># Parameters</span>
+        <span class="n">outputFormat</span> <span class="o">=</span> <span class="n">outputFormat</span>
+        <span class="n">idsAllLst</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">queryLstLength</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">queryLst</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">queryLstLength</span> <span class="o">!=</span> <span class="mi">0</span>
+
+        <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># one database request for each query</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">queryTerm</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">queryLst</span><span class="p">):</span>
+            <span class="c1"># Feedback</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;Query {i+1} of </span><span class="si">{queryLstLength}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+            <span class="c1"># request to database</span>
+            <span class="n">idsStr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">queryUniprotID</span><span class="p">(</span><span class="n">queryTerm</span><span class="p">,</span> <span class="n">organismID</span><span class="p">)</span>
+            <span class="n">idsLst</span> <span class="o">=</span> <span class="n">idsStr</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Create rows for melted data frame</span>
+            <span class="k">for</span> <span class="n">_id</span> <span class="ow">in</span> <span class="n">idsLst</span><span class="p">:</span>
+                <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">queryTerm</span><span class="p">,</span> <span class="n">_id</span><span class="p">])</span>
+
+        <span class="n">idDf</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;query&quot;</span><span class="p">,</span> <span class="n">idLabel</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">idDf</span></div>
+
+<div class="viewcode-block" id="Uniprot.mapRetrieveUniprot"><a class="viewcode-back" href="../source/proteinFinder.html#proteinFinder.Uniprot.mapRetrieveUniprot">[docs]</a>    <span class="k">def</span> <span class="nf">mapRetrieveUniprot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ids2map</span><span class="p">,</span>
+                           <span class="n">source_fmt</span><span class="o">=</span><span class="s1">&#39;ACC+ID&#39;</span><span class="p">,</span>
+                           <span class="n">target_fmt</span><span class="o">=</span><span class="s1">&#39;ACC&#39;</span><span class="p">,</span>
+                           <span class="n">output_fmt</span><span class="o">=</span><span class="s1">&#39;tab&#39;</span><span class="p">,</span>
+                           <span class="n">colNames</span><span class="o">=</span><span class="s1">&#39;id,entry name,organism&#39;</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Calls Uniprot API to map (translate) IDs from or to Uniprot</span>
+<span class="sd">        database and retrieve entries after mapping.</span>
+
+<span class="sd">        Makes a POST request  with a list of IDs to Uniprot API. The API can</span>
+<span class="sd">        map foreign IDs to Uniprot Accession numbers or Uniprot Accession</span>
+<span class="sd">        numbers to foreign IDs. Also after mapping, Uniprot searches the</span>
+<span class="sd">        results, it responses with the results in a desired output format.</span>
+
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ids2map: list of strings</span>
+<span class="sd">            List of ID strings that should be mapped</span>
+<span class="sd">        sourceFmt: string</span>
+<span class="sd">            Database identifier of uniprot, from which the ID is from</span>
+<span class="sd">            (List of identifiers: https://www.uniprot.org/help/api_idmapping)</span>
+<span class="sd">        targetFmt: string</span>
+<span class="sd">            Database identifier of uniprot, to which the ID should mapped</span>
+<span class="sd">        outputFmt: string</span>
+<span class="sd">            Desired output format from Uniprot API</span>
+<span class="sd">            (List of possible formats https://www.uniprot.org/help/api_queries)</span>
+<span class="sd">        colNames: string</span>
+<span class="sd">            Optional. Only used when outputFmt is &#39;tab&#39; or</span>
+<span class="sd">            &#39;xls&#39;. Comma seperated list of column names to retrieve from entry</span>
+<span class="sd">            (List of possible columns:</span>
+<span class="sd">            https://www.uniprot.org/help/uniprotkb_column_names)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        response.text: JSON as str</span>
+<span class="sd">            Response body of POST request.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">baseURL</span> <span class="o">=</span> <span class="s1">&#39;https://www.uniprot.org/uploadlists/&#39;</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">ids2map</span><span class="p">,</span> <span class="s1">&#39;pop&#39;</span><span class="p">):</span>
+            <span class="n">ids2map</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ids2map</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ids2map</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span>
+        <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;query&#39;</span><span class="p">:</span> <span class="n">ids2map</span><span class="p">,</span>
+                <span class="s1">&#39;from&#39;</span><span class="p">:</span> <span class="n">source_fmt</span><span class="p">,</span>
+                <span class="s1">&#39;to&#39;</span><span class="p">:</span> <span class="n">target_fmt</span><span class="p">,</span>
+                <span class="s1">&#39;format&#39;</span><span class="p">:</span> <span class="n">output_fmt</span><span class="p">,</span>
+                <span class="s1">&#39;columns&#39;</span><span class="p">:</span> <span class="n">colNames</span>
+                <span class="p">}</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">baseURL</span><span class="p">,</span> <span class="n">payload</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">ok</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+                <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Uniprot found no matching results&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Uniprot.getUniprotEntrysWithNCBIIds"><a class="viewcode-back" href="../source/proteinFinder.html#proteinFinder.Uniprot.getUniprotEntrysWithNCBIIds">[docs]</a>    <span class="k">def</span> <span class="nf">getUniprotEntrysWithNCBIIds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queryDF</span><span class="p">,</span> <span class="n">colNames</span><span class="p">,</span> <span class="n">idLabel</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get Uniprot information&#39;&#39;&#39;</span>
+        <span class="c1"># Get Uniprot Response</span>
+        <span class="n">resBody</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapRetrieveUniprot</span><span class="p">(</span><span class="n">queryDF</span><span class="p">[</span><span class="n">idLabel</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+                                          <span class="s1">&#39;P_GI&#39;</span><span class="p">,</span> <span class="s1">&#39;ACC&#39;</span><span class="p">,</span> <span class="s1">&#39;tab&#39;</span><span class="p">,</span> <span class="n">colNames</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">resBody</span></div>
+
+<div class="viewcode-block" id="Uniprot.matchQueryWithResponse"><a class="viewcode-back" href="../source/proteinFinder.html#proteinFinder.Uniprot.matchQueryWithResponse">[docs]</a>    <span class="k">def</span> <span class="nf">matchQueryWithResponse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queryDf</span><span class="p">,</span> <span class="n">responseDf</span><span class="p">,</span> <span class="n">idLabel</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Outer join with query and response dataframe</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        queryDf: pandas data frame</span>
+<span class="sd">            Stores query terms aswell as the matching IDs,</span>
+<span class="sd">            retrieved from database search.</span>
+<span class="sd">        responseDf: pandas data frame</span>
+<span class="sd">            Stores response data from the server.</span>
+<span class="sd">        idLabel: string</span>
+<span class="sd">            Label for the IDs retrieved. Is used as primary key.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        allProtInfoDf: pandas data frame</span>
+<span class="sd">            Stores query terms and response information.</span>
+
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">dfIDCol</span> <span class="o">=</span> <span class="n">responseDf</span><span class="p">[</span><span class="n">idLabel</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+        <span class="n">dfIDCol</span> <span class="o">=</span> <span class="n">dfIDCol</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">stack</span><span class="p">()</span>
+        <span class="n">dfIDCol</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">dfIDCol</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">droplevel</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">dfIDCol</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">idLabel</span>
+        <span class="k">del</span> <span class="n">responseDf</span><span class="p">[</span><span class="n">idLabel</span><span class="p">]</span>
+        <span class="n">responseDf</span> <span class="o">=</span> <span class="n">responseDf</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dfIDCol</span><span class="p">)</span>
+        <span class="n">allProtInfoDf</span> <span class="o">=</span> <span class="n">queryDf</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">responseDf</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="n">idLabel</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;outer&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">allProtInfoDf</span></div>
+
+<div class="viewcode-block" id="Uniprot.processUniprotRes"><a class="viewcode-back" href="../source/proteinFinder.html#proteinFinder.Uniprot.processUniprotRes">[docs]</a>    <span class="k">def</span> <span class="nf">processUniprotRes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resBody</span><span class="p">,</span> <span class="n">queryDf</span><span class="p">,</span> <span class="n">outPath</span><span class="p">,</span> <span class="n">idLabel</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Creates data frame out of Uniprot POST Request</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        resBody: JSON as str</span>
+<span class="sd">            Response body from GET() request of uniprot.</span>
+<span class="sd">        queryDf: pandas data frame</span>
+<span class="sd">            Stores query terms aswell as the matching IDs,</span>
+<span class="sd">            retrieved from database search.</span>
+<span class="sd">        outPath: str</span>
+<span class="sd">            Path to output file.</span>
+<span class="sd">        idLabel: string</span>
+<span class="sd">            Label for the IDs retrieved. Is used as primary key.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        protInfoDf: pandas data frame</span>
+<span class="sd">            Stores query terms and response information.</span>
+
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">responseCSV</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">(</span><span class="n">resBody</span><span class="p">)</span>
+        <span class="n">responseDf</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">responseCSV</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># query names have to be matched with ALL matching IDs</span>
+        <span class="n">queryColumnName</span> <span class="o">=</span> <span class="n">responseDf</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">responseDf</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="n">queryColumnName</span><span class="p">:</span> <span class="n">idLabel</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">responseDf</span><span class="p">[</span><span class="n">idLabel</span><span class="p">]</span> <span class="o">=</span> <span class="n">responseDf</span><span class="p">[</span><span class="n">idLabel</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+        <span class="n">protInfoDf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">matchQueryWithResponse</span><span class="p">(</span><span class="n">queryDf</span><span class="p">,</span>
+                                                 <span class="n">responseDf</span><span class="p">,</span> <span class="n">idLabel</span><span class="p">)</span>
+        <span class="n">protInfoDf</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">outPath</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">protInfoDf</span></div></div>
+
+<span class="c1">####################</span>
+<span class="c1"># Program #########</span>
+<span class="c1">##################</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">initArguments</span><span class="p">()</span>
+
+    <span class="c1"># Read File</span>
+    <span class="n">queryLst</span><span class="p">,</span> <span class="n">orgaLst</span> <span class="o">=</span> <span class="n">readQueryFile</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">inputFile</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">noheaders</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">website</span> <span class="o">==</span> <span class="s1">&#39;ncbi&#39;</span><span class="p">:</span>
+        <span class="c1"># Query NCBI</span>
+        <span class="n">ncbi</span> <span class="o">=</span> <span class="n">NCBI</span><span class="p">(</span><span class="n">queryLst</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">database</span><span class="p">)</span>
+        <span class="n">idRes</span> <span class="o">=</span> <span class="n">ncbi</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">queryLst</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">database</span><span class="p">)</span>
+        <span class="n">queryDF</span> <span class="o">=</span> <span class="n">ncbi</span><span class="o">.</span><span class="n">saveNcbiIDs</span><span class="p">(</span><span class="n">idRes</span><span class="p">,</span> <span class="s1">&#39;ID_NCBI&#39;</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">outputFile</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">website</span> <span class="o">==</span> <span class="s1">&#39;ncbi+uniprot&#39;</span><span class="p">:</span>
+        <span class="c1"># Query NCBI+Uniprot</span>
+        <span class="n">ncbi</span> <span class="o">=</span> <span class="n">NCBI</span><span class="p">(</span><span class="n">queryLst</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">database</span><span class="p">)</span>
+        <span class="n">idRes</span> <span class="o">=</span> <span class="n">ncbi</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">queryLst</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">database</span><span class="p">)</span>
+        <span class="n">queryDF</span> <span class="o">=</span> <span class="n">ncbi</span><span class="o">.</span><span class="n">saveNcbiIDs</span><span class="p">(</span><span class="n">idRes</span><span class="p">,</span> <span class="s1">&#39;ID_NCBI&#39;</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">outputFile</span><span class="p">)</span>
+
+        <span class="n">uniNCBI</span> <span class="o">=</span> <span class="n">Uniprot</span><span class="p">()</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">uniNCBI</span><span class="o">.</span><span class="n">mapRetrieveUniprot</span><span class="p">(</span><span class="n">queryDF</span><span class="p">[</span><span class="s1">&#39;ID_NCBI&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+                                         <span class="s1">&#39;P_GI&#39;</span><span class="p">,</span> <span class="s1">&#39;ACC&#39;</span><span class="p">,</span> <span class="s1">&#39;tab&#39;</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+        <span class="n">protInfoDf</span> <span class="o">=</span> <span class="n">uniNCBI</span><span class="o">.</span><span class="n">processUniprotRes</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">queryDF</span><span class="p">,</span>
+                                               <span class="n">args</span><span class="o">.</span><span class="n">outputFile</span><span class="p">,</span> <span class="s2">&quot;ID_NCBI&quot;</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">website</span> <span class="o">==</span> <span class="s1">&#39;uniprot&#39;</span><span class="p">:</span>
+        <span class="n">uni</span> <span class="o">=</span> <span class="n">Uniprot</span><span class="p">()</span>
+        <span class="c1"># Query Uniprot by foreign database IDs</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">inputDataType</span> <span class="o">==</span> <span class="s1">&#39;id&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">idType</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Declare idType in arguments&#39;</span><span class="p">)</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">uni</span><span class="o">.</span><span class="n">mapRetrieveUniprot</span><span class="p">(</span><span class="n">queryLst</span><span class="p">,</span>
+                                         <span class="n">args</span><span class="o">.</span><span class="n">idType</span><span class="p">,</span>
+                                         <span class="s1">&#39;ACC&#39;</span><span class="p">,</span>
+                                         <span class="s1">&#39;tab&#39;</span><span class="p">,</span>
+                                         <span class="n">args</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+            <span class="n">queryDF</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;query&#39;</span><span class="p">:</span> <span class="n">queryLst</span><span class="p">})</span>
+            <span class="n">protInfoDf</span> <span class="o">=</span> <span class="n">uni</span><span class="o">.</span><span class="n">processUniprotRes</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">queryDF</span><span class="p">,</span>
+                                               <span class="n">args</span><span class="o">.</span><span class="n">outputFile</span><span class="p">,</span> <span class="s2">&quot;query&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Query Uniprot by search terms</span>
+            <span class="n">idsDf</span> <span class="o">=</span> <span class="n">uni</span><span class="o">.</span><span class="n">queryTerms</span><span class="p">(</span><span class="n">queryLst</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">organism</span><span class="p">)</span>
+            <span class="n">idsDf</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">outputFile</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Protein Finder 0.9 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Martin Zembaty.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+    </div>
+  </body>
+</html>

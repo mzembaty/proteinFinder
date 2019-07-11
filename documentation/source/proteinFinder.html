@@ -1,0 +1,363 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>proteinFinder module &#8212; Protein Finder 0.9 documentation</title>
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Usage" href="quickstart.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="quickstart.html" title="Usage"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Protein Finder 0.9 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-proteinFinder">
+<span id="proteinfinder-module"></span><h1>proteinFinder module<a class="headerlink" href="#module-proteinFinder" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="proteinFinder.NCBI">
+<em class="property">class </em><code class="sig-prename descclassname">proteinFinder.</code><code class="sig-name descname">NCBI</code><span class="sig-paren">(</span><em class="sig-param">queryLst</em>, <em class="sig-param">db</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/proteinFinder.html#NCBI"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#proteinFinder.NCBI" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Object handling ncbi API</p>
+<dl class="attribute">
+<dt id="proteinFinder.NCBI.queryLst">
+<code class="sig-name descname">queryLst</code><a class="headerlink" href="#proteinFinder.NCBI.queryLst" title="Permalink to this definition">¶</a></dt>
+<dd><p>List with query strings the database should be searched for.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>list of str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="proteinFinder.NCBI.db">
+<code class="sig-name descname">db</code><a class="headerlink" href="#proteinFinder.NCBI.db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name of the database, that should be searched in. Full list of options
+under:
+<a class="reference external" href="https://www.ncbi.nlm.nih.gov/books/NBK25497/table/chapter2.T._entrez_unique_identifiers_ui/?report=objectonly">https://www.ncbi.nlm.nih.gov/books/NBK25497/table/chapter2.T._entrez_unique_identifiers_ui/?report=objectonly</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="proteinFinder.NCBI.getNcbiIdFromResponse">
+<code class="sig-name descname">getNcbiIdFromResponse</code><span class="sig-paren">(</span><em class="sig-param">resLst</em>, <em class="sig-param">queryLst</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/proteinFinder.html#NCBI.getNcbiIdFromResponse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#proteinFinder.NCBI.getNcbiIdFromResponse" title="Permalink to this definition">¶</a></dt>
+<dd><p>process json server response / get the matching ids for the query</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>resLst</strong> (<em>list of response objects</em>) – List of response objects retrieved from the NCBI server.</p></li>
+<li><p><strong>queryLst</strong> (<em>list of str:</em>) – List with query strings the database was searched by.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>idsDic</strong> – KEY: Query string, VALUE: List of IDs from response.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="proteinFinder.NCBI.query">
+<code class="sig-name descname">query</code><span class="sig-paren">(</span><em class="sig-param">queryLst</em>, <em class="sig-param">db</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/proteinFinder.html#NCBI.query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#proteinFinder.NCBI.query" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get NCBI IDs from a list of query terms</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>queryLst</strong> (<em>list of str:</em>) – List with query strings the database was searched by.</p></li>
+<li><p><strong>db</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Name of the database that should be searched in.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>idsDic</strong> – KEY: Query string, VALUE: List of IDs from response.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="proteinFinder.NCBI.queryNcbiDb">
+<code class="sig-name descname">queryNcbiDb</code><span class="sig-paren">(</span><em class="sig-param">queryLst</em>, <em class="sig-param">db='protein'</em>, <em class="sig-param">outFormat='json'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/proteinFinder.html#NCBI.queryNcbiDb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#proteinFinder.NCBI.queryNcbiDb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Querys list of strings in NCBI database</p>
+<p>Makes http GET request to Query NCBI Entrez Programming Utilities
+(E-utilities) and retrieves response. Only 10 querys per second
+allowed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>queryLst</strong> (<em>list of str:</em>) – List with query strings the database should be searched for.</p></li>
+<li><p><strong>db</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Name of the database that should be searched in.</p></li>
+<li><p><strong>outFormat</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Output format response from the database (‘xml’ or ‘json’).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>resLst</strong> – List of response objects retrieved from the NCBI server
+by the GET() call.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of response objects</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="proteinFinder.NCBI.saveNcbiIDs">
+<code class="sig-name descname">saveNcbiIDs</code><span class="sig-paren">(</span><em class="sig-param">idsDic</em>, <em class="sig-param">idLabel</em>, <em class="sig-param">outputFile</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/proteinFinder.html#NCBI.saveNcbiIDs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#proteinFinder.NCBI.saveNcbiIDs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a pandas dataframe and saves the table as csv</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>idsDic</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – KEY: Query string, VALUE: List of IDs from response.</p></li>
+<li><p><strong>idLabel</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Label for the IDs retrieved. Is later used as primary key.</p></li>
+<li><p><strong>outputFile</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Path the .csv file will be saved in.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>queryDF</strong> – Stores query terms aswell as the matching IDs,
+retrieved from database search.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas data frame</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="proteinFinder.Uniprot">
+<em class="property">class </em><code class="sig-prename descclassname">proteinFinder.</code><code class="sig-name descname">Uniprot</code><a class="reference internal" href="../_modules/proteinFinder.html#Uniprot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#proteinFinder.Uniprot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="method">
+<dt id="proteinFinder.Uniprot.getUniprotEntrysWithNCBIIds">
+<code class="sig-name descname">getUniprotEntrysWithNCBIIds</code><span class="sig-paren">(</span><em class="sig-param">queryDF</em>, <em class="sig-param">colNames</em>, <em class="sig-param">idLabel</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/proteinFinder.html#Uniprot.getUniprotEntrysWithNCBIIds"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#proteinFinder.Uniprot.getUniprotEntrysWithNCBIIds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get Uniprot information</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="proteinFinder.Uniprot.mapRetrieveUniprot">
+<code class="sig-name descname">mapRetrieveUniprot</code><span class="sig-paren">(</span><em class="sig-param">ids2map</em>, <em class="sig-param">source_fmt='ACC+ID'</em>, <em class="sig-param">target_fmt='ACC'</em>, <em class="sig-param">output_fmt='tab'</em>, <em class="sig-param">colNames='id</em>, <em class="sig-param">entry name</em>, <em class="sig-param">organism'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/proteinFinder.html#Uniprot.mapRetrieveUniprot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#proteinFinder.Uniprot.mapRetrieveUniprot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calls Uniprot API to map (translate) IDs from or to Uniprot
+database and retrieve entries after mapping.</p>
+<p>Makes a POST request  with a list of IDs to Uniprot API. The API can
+map foreign IDs to Uniprot Accession numbers or Uniprot Accession
+numbers to foreign IDs. Also after mapping, Uniprot searches the
+results, it responses with the results in a desired output format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ids2map</strong> (<em>list of strings</em>) – List of ID strings that should be mapped</p></li>
+<li><p><strong>sourceFmt</strong> (<em>string</em>) – Database identifier of uniprot, from which the ID is from
+(List of identifiers: <a class="reference external" href="https://www.uniprot.org/help/api_idmapping">https://www.uniprot.org/help/api_idmapping</a>)</p></li>
+<li><p><strong>targetFmt</strong> (<em>string</em>) – Database identifier of uniprot, to which the ID should mapped</p></li>
+<li><p><strong>outputFmt</strong> (<em>string</em>) – Desired output format from Uniprot API
+(List of possible formats <a class="reference external" href="https://www.uniprot.org/help/api_queries">https://www.uniprot.org/help/api_queries</a>)</p></li>
+<li><p><strong>colNames</strong> (<em>string</em>) – Optional. Only used when outputFmt is ‘tab’ or
+‘xls’. Comma seperated list of column names to retrieve from entry
+(List of possible columns:
+<a class="reference external" href="https://www.uniprot.org/help/uniprotkb_column_names">https://www.uniprot.org/help/uniprotkb_column_names</a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>response.text</strong> – Response body of POST request.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>JSON as str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="proteinFinder.Uniprot.matchQueryWithResponse">
+<code class="sig-name descname">matchQueryWithResponse</code><span class="sig-paren">(</span><em class="sig-param">queryDf</em>, <em class="sig-param">responseDf</em>, <em class="sig-param">idLabel</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/proteinFinder.html#Uniprot.matchQueryWithResponse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#proteinFinder.Uniprot.matchQueryWithResponse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Outer join with query and response dataframe</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>queryDf</strong> (<em>pandas data frame</em>) – Stores query terms aswell as the matching IDs,
+retrieved from database search.</p></li>
+<li><p><strong>responseDf</strong> (<em>pandas data frame</em>) – Stores response data from the server.</p></li>
+<li><p><strong>idLabel</strong> (<em>string</em>) – Label for the IDs retrieved. Is used as primary key.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>allProtInfoDf</strong> – Stores query terms and response information.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas data frame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="proteinFinder.Uniprot.processUniprotRes">
+<code class="sig-name descname">processUniprotRes</code><span class="sig-paren">(</span><em class="sig-param">resBody</em>, <em class="sig-param">queryDf</em>, <em class="sig-param">outPath</em>, <em class="sig-param">idLabel</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/proteinFinder.html#Uniprot.processUniprotRes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#proteinFinder.Uniprot.processUniprotRes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates data frame out of Uniprot POST Request</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>resBody</strong> (<em>JSON as str</em>) – Response body from GET() request of uniprot.</p></li>
+<li><p><strong>queryDf</strong> (<em>pandas data frame</em>) – Stores query terms aswell as the matching IDs,
+retrieved from database search.</p></li>
+<li><p><strong>outPath</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Path to output file.</p></li>
+<li><p><strong>idLabel</strong> (<em>string</em>) – Label for the IDs retrieved. Is used as primary key.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>protInfoDf</strong> – Stores query terms and response information.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas data frame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="proteinFinder.Uniprot.queryTerms">
+<code class="sig-name descname">queryTerms</code><span class="sig-paren">(</span><em class="sig-param">queryLst</em>, <em class="sig-param">organismID</em>, <em class="sig-param">outputFormat='list'</em>, <em class="sig-param">sort='score'</em>, <em class="sig-param">idLabel='ID_Uniprot'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/proteinFinder.html#Uniprot.queryTerms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#proteinFinder.Uniprot.queryTerms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search Uniprot database based on search terms</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>queryLst</strong> (<em>list of str:</em>) – List with query strings the database was searched by.</p></li>
+<li><p><strong>organismID</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Limit the search results to this organism.</p></li>
+<li><p><strong>outputFormat</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Type of format from the server. All choices under,
+<a class="reference external" href="https://www.uniprot.org/help/api_queries">https://www.uniprot.org/help/api_queries</a> .</p></li>
+<li><p><strong>sort</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Determines how the results should be sorted.</p></li>
+<li><p><strong>idLabel</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Label for the IDs retrieved. Is later used as primary key.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>idDf</strong> – Contains information about query term and retrieved id.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas data frame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="proteinFinder.Uniprot.queryUniprotID">
+<code class="sig-name descname">queryUniprotID</code><span class="sig-paren">(</span><em class="sig-param">queryStr</em>, <em class="sig-param">organismID</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/proteinFinder.html#Uniprot.queryUniprotID"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#proteinFinder.Uniprot.queryUniprotID" title="Permalink to this definition">¶</a></dt>
+<dd><p>Querys UniProt Database to get accession number of the gene/protein</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>queryStr</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Query term (gene, protein, ect) to search for in the database.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>accessionNumbers</strong> – List of query results for the search term.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of str</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="proteinFinder.initArguments">
+<code class="sig-prename descclassname">proteinFinder.</code><code class="sig-name descname">initArguments</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/proteinFinder.html#initArguments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#proteinFinder.initArguments" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="proteinFinder.readQueryFile">
+<code class="sig-prename descclassname">proteinFinder.</code><code class="sig-name descname">readQueryFile</code><span class="sig-paren">(</span><em class="sig-param">srcFile</em>, <em class="sig-param">noheaders=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/proteinFinder.html#readQueryFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#proteinFinder.readQueryFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read query strings from .csv file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>srcFile</strong> (<em>string</em>) – Path to .csv file with query strings in first column.</p></li>
+<li><p><strong>noheaders</strong> (<em>boolean</em>) – If true, first row of csv file will be skipped.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>queryLst</strong> – List of query strings the databse should be searched for.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)">list</a>[string]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="quickstart.html"
+                        title="previous chapter">Usage</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="quickstart.html" title="Usage"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Protein Finder 0.9 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Martin Zembaty.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+    </div>
+  </body>
+</html>

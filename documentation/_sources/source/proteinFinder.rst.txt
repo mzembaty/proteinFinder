@@ -1,0 +1,7 @@
+proteinFinder module
+====================
+
+.. automodule:: proteinFinder
+    :members:
+    :undoc-members:
+    :show-inheritance:

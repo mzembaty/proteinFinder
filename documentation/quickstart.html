@@ -1,0 +1,692 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Tutorial &#8212; Protein Finder 0.9 documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Protein Finder 0.9 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="tutorial">
+<h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="api-key">
+<h2>API-KEY<a class="headerlink" href="#api-key" title="Permalink to this headline">¶</a></h2>
+<p>Before proteinFinder.py can be used, a line in the code has to be changed. Since NCBI search
+requires an identification key or API-KEY, the first thing to do is to create an account
+on <a class="reference external" href="https://www.ncbi.nlm.nih.gov/">NCBI</a>. Next it is best to follow
+<a class="reference external" href="https://ncbiinsights.ncbi.nlm.nih.gov/2017/11/02/new-api-keys-for-the-e-utilities/">this guide</a>
+to acquire the key. The API key needs to be inserted into the following line of code in
+proteinFinder.py:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">apiKey</span> <span class="o">=</span> <span class="s2">&quot;INSERT YOUR KEY HERE&quot;</span>
+</pre></div>
+</div>
+<p>Once this is done, the program has its full functionality.</p>
+</div>
+<div class="section" id="basic-functionality">
+<h2>Basic Functionality<a class="headerlink" href="#basic-functionality" title="Permalink to this headline">¶</a></h2>
+<p>Let’s assume we have a csv File containing gene loci. The loci
+were originally from the NCBI database. Now we want to have more
+information about the gene product. We start with the input file,
+named ‘genes.csv’. It stores the following information:</p>
+<p>Gene loci:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 100%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>gene_loci</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Dshi_0051</p></td>
+</tr>
+<tr class="row-odd"><td><p>Dshi_0052</p></td>
+</tr>
+<tr class="row-even"><td><p>Dshi_0053</p></td>
+</tr>
+<tr class="row-odd"><td><p>Dshi_0054</p></td>
+</tr>
+<tr class="row-even"><td><p>Dshi_0055</p></td>
+</tr>
+<tr class="row-odd"><td><p>Dshi_0056</p></td>
+</tr>
+<tr class="row-even"><td><p>Dshi_0057</p></td>
+</tr>
+<tr class="row-odd"><td><p>Dshi_0058</p></td>
+</tr>
+<tr class="row-even"><td><p>Dshi_0059</p></td>
+</tr>
+<tr class="row-odd"><td><p>Dshi_0060</p></td>
+</tr>
+<tr class="row-even"><td><p>CC_2_9</p></td>
+</tr>
+</tbody>
+</table>
+<p>We start the command line prompt and navigate to the folder containing
+proteinFinder.py. To use the Protein Finder module we need to know what
+kind of arguments the script is expecting. We can go look it up in
+documentation or we just type in:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="n">proteinFinder</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">h</span>
+</pre></div>
+</div>
+<p>The flag -h is short for help. This command shows all arguments the script
+is able to process and a short description:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>usage: proteinFinder.py [-h] [--noheaders] [-db DATABASE] [-c COLUMNS]
+                    [--organism ORGANISM] [-i {text,id}] [--idType IDTYPE]
+                    inputFile outputFile {ncbi,uniprot,ncbi+uniprot}
+
+positional arguments:
+inputFile             Path to csvfile with query strings
+outputFile            Path to file the results should besaved
+{ncbi,uniprot,ncbi+uniprot}
+                        Which website should be queried
+
+optional arguments:
+-h, --help            show this help message and exit
+--noheaders           When reading the input file it does notskip the first row
+-db DATABASE, --database DATABASE
+                        Database which shouldbe queried
+-c COLUMNS, --columns COLUMNS
+                        When quiering Uniprot,depicts, which type of
+                        information should be downloaded. Terms have to be
+                        comma seperated
+--organism ORGANISM   Narrow down the search tospecified organism
+-i {text,id}, --inputDataType {text,id}
+                        Type of data stored in input File
+--idType IDTYPE       What database the IDs are from?
+</pre></div>
+</div>
+<p>For the script working proberly, the positional arguments are required.
+The minimum working script, would be:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="n">proteinFinder</span><span class="o">.</span><span class="n">py</span> <span class="n">inputFilePath</span> <span class="n">outputFilePath</span> <span class="n">websiteToQuery</span>
+</pre></div>
+</div>
+<p>In our case the data is stored in a csv file called ‘genes.csv’. And
+we want the endresult to be saved in ‘proteinInformation.csv’. Since
+Uniprot does not recognise our gene loci we first need to query NCBI,
+for the ID. And with that ID we query the Uniprot database. luckily the
+script is smart and handles this with the simple argument ‘ncbi+uniprot’.
+So we end up with the following command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="n">proteinFinder</span><span class="o">.</span><span class="n">py</span> <span class="n">genes</span><span class="o">.</span><span class="n">csv</span> <span class="n">proteinInformation</span><span class="o">.</span><span class="n">csv</span> <span class="n">ncbi</span><span class="o">+</span><span class="n">uniprot</span>
+</pre></div>
+</div>
+<p>The script informs us that it ignores the first line in the input file,
+which contains the headers. If you don’t want this behaviour, you need
+to pass the argument ‘–noheaders’. We also get a feedback on the status
+of the querys:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Skipping</span> <span class="n">headers</span>
+<span class="n">Query</span> <span class="mi">1</span> <span class="n">of</span> <span class="mi">12</span>
+<span class="n">Query</span> <span class="mi">2</span> <span class="n">of</span> <span class="mi">12</span>
+<span class="n">Query</span> <span class="mi">3</span> <span class="n">of</span> <span class="mi">12</span>
+<span class="n">Query</span> <span class="mi">4</span> <span class="n">of</span> <span class="mi">12</span>
+<span class="n">Query</span> <span class="mi">5</span> <span class="n">of</span> <span class="mi">12</span>
+<span class="n">Query</span> <span class="mi">6</span> <span class="n">of</span> <span class="mi">12</span>
+<span class="n">Query</span> <span class="mi">7</span> <span class="n">of</span> <span class="mi">12</span>
+<span class="n">Query</span> <span class="mi">8</span> <span class="n">of</span> <span class="mi">12</span>
+<span class="n">Query</span> <span class="mi">9</span> <span class="n">of</span> <span class="mi">12</span>
+<span class="n">Query</span> <span class="mi">10</span> <span class="n">of</span> <span class="mi">12</span>
+<span class="n">Query</span> <span class="mi">11</span> <span class="n">of</span> <span class="mi">12</span>
+<span class="n">Query</span> <span class="mi">12</span> <span class="n">of</span> <span class="mi">12</span>
+</pre></div>
+</div>
+<p>The information found by the search are summed up in the table. The resulting
+table in ‘proteinInformation.csv’should look similar to this:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 7%" />
+<col style="width: 39%" />
+<col style="width: 14%" />
+<col style="width: 21%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>query</p></th>
+<th class="head"><p>ID_NCBI</p></th>
+<th class="head"><p>ID_Uni</p></th>
+<th class="head"><p>Protein names</p></th>
+<th class="head"><p>Gene names</p></th>
+<th class="head"><p>Protein existence</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Dshi_0051</p></td>
+<td><p>157910367</p></td>
+<td><p>A8LJX4</p></td>
+<td><p>Uncharacterized protein</p></td>
+<td><p>Dshi_0051</p></td>
+<td><p>Predicted</p></td>
+</tr>
+<tr class="row-odd"><td><p>Dshi_0052</p></td>
+<td><p>157910368</p></td>
+<td><p>A8LJX5</p></td>
+<td><p>Uncharacterized protein</p></td>
+<td><p>Dshi_0052</p></td>
+<td><p>Predicted</p></td>
+</tr>
+<tr class="row-even"><td><p>Dshi_0053</p></td>
+<td><p>157910369</p></td>
+<td><p>A8LJX6</p></td>
+<td><p>HI0933 family protein</p></td>
+<td><p>Dshi_0053</p></td>
+<td><p>Predicted</p></td>
+</tr>
+<tr class="row-odd"><td><p>Dshi_0054</p></td>
+<td><p>157910370</p></td>
+<td><p>A8LJX7</p></td>
+<td><p>Glutathione S-transferase like protein</p></td>
+<td><p>gst2 Dshi_0054</p></td>
+<td><p>Predicted</p></td>
+</tr>
+<tr class="row-even"><td><p>Dshi_0055</p></td>
+<td><p>157910371</p></td>
+<td><p>A8LJX8</p></td>
+<td><p>DNA polymerase III, delta subunit</p></td>
+<td><p>holA Dshi_0055</p></td>
+<td><p>Predicted</p></td>
+</tr>
+<tr class="row-odd"><td><p>Dshi_0056</p></td>
+<td><p>157910372</p></td>
+<td><p>A8LJX9</p></td>
+<td><p>Uncharacterized protein</p></td>
+<td><p>Dshi_0056</p></td>
+<td><p>Predicted</p></td>
+</tr>
+<tr class="row-even"><td><p>Dshi_0057</p></td>
+<td><p>189082998</p></td>
+<td><p>A8LJY0</p></td>
+<td><p>Leucine–tRNA ligase</p></td>
+<td><p>leuS Dshi_0057</p></td>
+<td><p>Inferred from homology</p></td>
+</tr>
+<tr class="row-odd"><td><p>Dshi_0057</p></td>
+<td><p>157910373</p></td>
+<td><p>A8LJY0</p></td>
+<td><p>Leucine–tRNA ligase</p></td>
+<td><p>leuS Dshi_0057</p></td>
+<td><p>Inferred from homology</p></td>
+</tr>
+<tr class="row-even"><td><p>Dshi_0058</p></td>
+<td><p>157910374</p></td>
+<td><p>A8LJY1</p></td>
+<td><p>Outer-membrane lipoprotein carrier protein</p></td>
+<td><p>lolA Dshi_0058</p></td>
+<td><p>Inferred from homology</p></td>
+</tr>
+<tr class="row-odd"><td><p>Dshi_0059</p></td>
+<td><p>157910375</p></td>
+<td><p>A8LJY2</p></td>
+<td><p>DNA translocase</p></td>
+<td><p>ftsK Dshi_0059</p></td>
+<td><p>Inferred from homology</p></td>
+</tr>
+<tr class="row-even"><td><p>Dshi_0060</p></td>
+<td><p>157910376</p></td>
+<td><p>A8LJY3</p></td>
+<td><p>Aminotransferase class I and II</p></td>
+<td><p>Dshi_0060</p></td>
+<td><p>Predicted</p></td>
+</tr>
+<tr class="row-odd"><td><p>Dshi_0061</p></td>
+<td><p>157910377</p></td>
+<td><p>A8LJY4</p></td>
+<td><p>Amidase</p></td>
+<td><p>Dshi_0061</p></td>
+<td><p>Inferred from homology</p></td>
+</tr>
+<tr class="row-even"><td><p>CC_2_9</p></td>
+<td><p>Not Found</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>The table stores the original query, the IDs found in NCBI and the Uniport
+entry. Overall the search was successful. However there are 2 interesting
+cases. First, when the script does not find some entrys, it will fill the row
+with a ‘Not Found’ tag. Second, Dshi_0057 seems to appear twice. This is by
+design. When multiple IDs or entries are found for a query, each ID or entry,
+will be represented in a unique row. The reason is, there is no way for the
+programmer to safely determine what entry is relevant. Therefore every table,
+has to be inspected for such duplicates and be eliminated by hand.</p>
+</div>
+<div class="section" id="searching-ncbi">
+<h2>Searching NCBI<a class="headerlink" href="#searching-ncbi" title="Permalink to this headline">¶</a></h2>
+<p>To query NCBI you need to specify which database should be queried. A full list
+of all names can be found <a class="reference external" href="https://www.ncbi.nlm.nih.gov/books/NBK25497/table/chapter2.T._entrez_unique_identifiers_ui/?report=objectonly">here</a>.
+Right now only text search is available.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="n">proteinFinder</span><span class="o">.</span><span class="n">py</span> <span class="n">genes</span><span class="o">.</span><span class="n">csv</span> <span class="n">proteinInformation</span><span class="o">.</span><span class="n">csv</span> <span class="n">ncbi</span> <span class="o">-</span><span class="n">db</span> <span class="n">protein</span>
+</pre></div>
+</div>
+<p>If no -db flag is typed in the default value will be the protein database.</p>
+<div class="section" id="example">
+<h3>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h3>
+<p>Starting from a table genes.csv with gene loci, the corresponding ncbi accession numbers
+should be acquire.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 100%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p>query</p></td>
+</tr>
+<tr class="row-even"><td><p>Dshi_0051</p></td>
+</tr>
+<tr class="row-odd"><td><p>Dshi_0052</p></td>
+</tr>
+<tr class="row-even"><td><p>Dshi_0053</p></td>
+</tr>
+<tr class="row-odd"><td><p>Dshi_0054</p></td>
+</tr>
+<tr class="row-even"><td><p>Dshi_0055</p></td>
+</tr>
+<tr class="row-odd"><td><p>Dshi_0056</p></td>
+</tr>
+<tr class="row-even"><td><p>Dshi_0057</p></td>
+</tr>
+<tr class="row-odd"><td><p>Dshi_0057</p></td>
+</tr>
+<tr class="row-even"><td><p>Dshi_0058</p></td>
+</tr>
+<tr class="row-odd"><td><p>Dshi_0059</p></td>
+</tr>
+<tr class="row-even"><td><p>Dshi_0060</p></td>
+</tr>
+<tr class="row-odd"><td><p>Dshi_0061</p></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="n">proteinFinder</span><span class="o">.</span><span class="n">py</span> <span class="n">genes</span><span class="o">.</span><span class="n">csv</span> <span class="n">geneInfo</span><span class="o">.</span><span class="n">csv</span> <span class="n">ncbi</span>
+</pre></div>
+</div>
+<p>This command outputs geneInfo.csv:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p>query</p></td>
+<td><p>ID_NCBI</p></td>
+</tr>
+<tr class="row-even"><td><p>Dshi_0051</p></td>
+<td><p>157910367</p></td>
+</tr>
+<tr class="row-odd"><td><p>Dshi_0052</p></td>
+<td><p>157910368</p></td>
+</tr>
+<tr class="row-even"><td><p>Dshi_0053</p></td>
+<td><p>157910369</p></td>
+</tr>
+<tr class="row-odd"><td><p>Dshi_0054</p></td>
+<td><p>157910370</p></td>
+</tr>
+<tr class="row-even"><td><p>Dshi_0055</p></td>
+<td><p>157910371</p></td>
+</tr>
+<tr class="row-odd"><td><p>Dshi_0056</p></td>
+<td><p>157910372</p></td>
+</tr>
+<tr class="row-even"><td><p>Dshi_0057</p></td>
+<td><p>189082998</p></td>
+</tr>
+<tr class="row-odd"><td><p>Dshi_0057</p></td>
+<td><p>157910373</p></td>
+</tr>
+<tr class="row-even"><td><p>Dshi_0058</p></td>
+<td><p>157910374</p></td>
+</tr>
+<tr class="row-odd"><td><p>Dshi_0059</p></td>
+<td><p>157910375</p></td>
+</tr>
+<tr class="row-even"><td><p>Dshi_0060</p></td>
+<td><p>157910376</p></td>
+</tr>
+<tr class="row-odd"><td><p>Dshi_0061</p></td>
+<td><p>157910377</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="searching-uniprot">
+<h2>Searching Uniprot<a class="headerlink" href="#searching-uniprot" title="Permalink to this headline">¶</a></h2>
+<p>Uniprot can be searched in two ways.</p>
+<div class="section" id="query-with-search-terms">
+<h3>Query with search terms<a class="headerlink" href="#query-with-search-terms" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="n">proteinFinder</span><span class="o">.</span><span class="n">py</span> <span class="n">genes</span><span class="o">.</span><span class="n">csv</span> <span class="n">proteinInformation</span><span class="o">.</span><span class="n">csv</span> <span class="n">uniprot</span>
+</pre></div>
+</div>
+<p>irst it can be searched by search terms. This takes a long time since
+every term needs to make its own request to the database.</p>
+<p>The results can be filtered for a specific organism with the –organism flag
+followed by the species name. For trustworthy results it is recommended to input
+the UniProt taxon id, found on the website.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="n">proteinFinder</span><span class="o">.</span><span class="n">py</span> <span class="n">inputFile</span> <span class="n">outputFile</span> <span class="n">uniprot</span> <span class="o">--</span><span class="n">organism</span> <span class="s2">&quot;Dinoroseobacter shibae&quot;</span>
+<span class="n">python3</span> <span class="n">proteinFinder</span><span class="o">.</span><span class="n">py</span> <span class="n">inputFile</span> <span class="n">outputFile</span> <span class="n">uniprot</span> <span class="o">--</span><span class="n">organism</span> <span class="mi">398580</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="query-with-ids">
+<h3>Query with IDs<a class="headerlink" href="#query-with-ids" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="n">proteinFinder</span><span class="o">.</span><span class="n">py</span> <span class="n">genes</span><span class="o">.</span><span class="n">csv</span> <span class="n">proteinInformation</span><span class="o">.</span><span class="n">csv</span> <span class="n">uniprot</span> <span class="o">--</span><span class="n">inputDataType</span> <span class="nb">id</span>
+</pre></div>
+</div>
+<p>The second way is to search by ID. To search with IDs the parameter
+–inputDataType needs to be set to ‘id’.</p>
+<p>The IDs can be from variouse
+databases. Uniprot is able to map (translate) a given ID to its own
+accession number. For this the database has to specified from which
+the data come from. The database can be set with the argument –idType.
+A list of all available databases can be found
+<a class="reference external" href="https://www.uniprot.org/help/api_idmapping">here</a>.</p>
+</div>
+<div class="section" id="columns">
+<h3>Columns<a class="headerlink" href="#columns" title="Permalink to this headline">¶</a></h3>
+<p>With UniProt querys the information, which should be retrieved, can be
+controled with the –columns flag. The column names have to be
+seperated by a comma. All possible columns are listed on
+the <a class="reference external" href="https://www.uniprot.org/help/uniprotkb_column_names">UniProt website</a>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="n">proteinFinder</span><span class="o">.</span><span class="n">py</span> <span class="n">inputFile</span> <span class="n">outputFile</span>
+    <span class="n">uniprot</span> <span class="o">--</span><span class="n">columns</span> <span class="s2">&quot;id,keywords,genes,organism&quot;</span>
+</pre></div>
+</div>
+<p>If not specified the default values are:
+* id
+* protein names
+* genes
+* existence
+* organism
+* ec
+* feature(METAL BINDING)
+* keywords
+* comment(PATHWAY)
+* comment(SUBCELLULAR LOCATION)
+* comment(DOMAIN)
+* families
+* sequence</p>
+</div>
+<div class="section" id="examples">
+<h3>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h3>
+<p>The starting point will be the following table, which is a list of uniprot accesion numbers of proteins:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 100%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p>uniprot_id</p></td>
+</tr>
+<tr class="row-even"><td><p>A8LJX5</p></td>
+</tr>
+<tr class="row-odd"><td><p>A8LJX6</p></td>
+</tr>
+<tr class="row-even"><td><p>A8LJX7</p></td>
+</tr>
+<tr class="row-odd"><td><p>A8LJX8</p></td>
+</tr>
+<tr class="row-even"><td><p>A8LJX9</p></td>
+</tr>
+<tr class="row-odd"><td><p>A8LJY0</p></td>
+</tr>
+<tr class="row-even"><td><p>A8LJY0</p></td>
+</tr>
+<tr class="row-odd"><td><p>A8LJY1</p></td>
+</tr>
+<tr class="row-even"><td><p>A8LJY2</p></td>
+</tr>
+<tr class="row-odd"><td><p>A8LJY3</p></td>
+</tr>
+<tr class="row-even"><td><p>A8LJY4</p></td>
+</tr>
+<tr class="row-odd"><td><p>A8LJY5</p></td>
+</tr>
+</tbody>
+</table>
+<p>To extract the information from UniProt, the following command will be used:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="n">proteinFinder</span><span class="o">.</span><span class="n">py</span> <span class="n">proteins</span><span class="o">.</span><span class="n">csv</span> <span class="n">proteinInformation</span><span class="o">.</span><span class="n">csv</span> <span class="n">uniprot</span> <span class="o">-</span><span class="n">i</span> <span class="nb">id</span>
+</pre></div>
+</div>
+<p>The program requests information about the accesion numbers, which after success results in the following table:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 4%" />
+<col style="width: 35%" />
+<col style="width: 8%" />
+<col style="width: 12%" />
+<col style="width: 34%" />
+<col style="width: 6%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p>Entry</p></td>
+<td><p>Protein names</p></td>
+<td><p>Gene names</p></td>
+<td><p>Protein existence</p></td>
+<td><p>Organism</p></td>
+<td><p>EC number</p></td>
+</tr>
+<tr class="row-even"><td><p>A8LJX5</p></td>
+<td><p>Uncharacterized protein</p></td>
+<td><p>Dshi_0052</p></td>
+<td><p>Predicted</p></td>
+<td><p>Dinoroseobacter shibae (strain DSM 16493 / NCIMB 14021 / DFL 12)</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>A8LJX6</p></td>
+<td><p>HI0933 family protein</p></td>
+<td><p>Dshi_0053</p></td>
+<td><p>Predicted</p></td>
+<td><p>Dinoroseobacter shibae (strain DSM 16493 / NCIMB 14021 / DFL 12)</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>A8LJX7</p></td>
+<td><p>Glutathione S-transferase like protein (EC 2.5.1.18)</p></td>
+<td><p>gst2 Dshi_0054</p></td>
+<td><p>Predicted</p></td>
+<td><p>Dinoroseobacter shibae (strain DSM 16493 / NCIMB 14021 / DFL 12)</p></td>
+<td><p>2.5.1.18</p></td>
+</tr>
+<tr class="row-odd"><td><p>A8LJX8</p></td>
+<td><p>DNA polymerase III, delta subunit (EC 2.7.7.7)</p></td>
+<td><p>holA Dshi_0055</p></td>
+<td><p>Predicted</p></td>
+<td><p>Dinoroseobacter shibae (strain DSM 16493 / NCIMB 14021 / DFL 12)</p></td>
+<td><p>2.7.7.7</p></td>
+</tr>
+<tr class="row-even"><td><p>A8LJX9</p></td>
+<td><p>Uncharacterized protein</p></td>
+<td><p>Dshi_0056</p></td>
+<td><p>Predicted</p></td>
+<td><p>Dinoroseobacter shibae (strain DSM 16493 / NCIMB 14021 / DFL 12)</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>A8LJY0</p></td>
+<td><p>Leucine–tRNA ligase (EC 6.1.1.4) (Leucyl-tRNA synthetase) (LeuRS)</p></td>
+<td><p>leuS Dshi_0057</p></td>
+<td><p>Inferred from homology</p></td>
+<td><p>Dinoroseobacter shibae (strain DSM 16493 / NCIMB 14021 / DFL 12)</p></td>
+<td><p>6.1.1.4</p></td>
+</tr>
+<tr class="row-even"><td><p>A8LJY0</p></td>
+<td><p>Leucine–tRNA ligase (EC 6.1.1.4) (Leucyl-tRNA synthetase) (LeuRS)</p></td>
+<td><p>leuS Dshi_0057</p></td>
+<td><p>Inferred from homology</p></td>
+<td><p>Dinoroseobacter shibae (strain DSM 16493 / NCIMB 14021 / DFL 12)</p></td>
+<td><p>6.1.1.4</p></td>
+</tr>
+<tr class="row-odd"><td><p>A8LJY1</p></td>
+<td><p>Outer-membrane lipoprotein carrier protein</p></td>
+<td><p>lolA Dshi_0058</p></td>
+<td><p>Inferred from homology</p></td>
+<td><p>Dinoroseobacter shibae (strain DSM 16493 / NCIMB 14021 / DFL 12)</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>A8LJY2</p></td>
+<td><p>DNA translocase</p></td>
+<td><p>ftsK Dshi_0059</p></td>
+<td><p>Inferred from homology</p></td>
+<td><p>Dinoroseobacter shibae (strain DSM 16493 / NCIMB 14021 / DFL 12)</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>A8LJY3</p></td>
+<td><p>Aminotransferase class I and II</p></td>
+<td><p>Dshi_0060</p></td>
+<td><p>Predicted</p></td>
+<td><p>Dinoroseobacter shibae (strain DSM 16493 / NCIMB 14021 / DFL 12)</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>A8LJY4</p></td>
+<td><p>Amidase</p></td>
+<td><p>Dshi_0061</p></td>
+<td><p>Inferred from homology</p></td>
+<td><p>Dinoroseobacter shibae (strain DSM 16493 / NCIMB 14021 / DFL 12)</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>A8LJY5</p></td>
+<td><p>2-octaprenyl-6-methoxyphenol hydroxylase (EC 1.14.13.-)</p></td>
+<td><p>ubiH Dshi_0062</p></td>
+<td><p>Predicted</p></td>
+<td><p>Dinoroseobacter shibae (strain DSM 16493 / NCIMB 14021 / DFL 12)</p></td>
+<td><p>1.14.13.-</p></td>
+</tr>
+</tbody>
+</table>
+<p>With alternating the columns using the –columns flag the information requested will be changed:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="n">proteinFinder</span><span class="o">.</span><span class="n">py</span> <span class="n">proteins</span><span class="o">.</span><span class="n">csv</span> <span class="n">proteinInformation</span><span class="o">.</span><span class="n">csv</span>
+    <span class="n">uniprot</span> <span class="o">-</span><span class="n">i</span> <span class="nb">id</span> <span class="o">--</span><span class="n">columns</span> <span class="s2">&quot;id,keywords,genes&quot;</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 4%" />
+<col style="width: 88%" />
+<col style="width: 8%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p>Entry</p></td>
+<td><p>Keywords</p></td>
+<td><p>Gene names</p></td>
+</tr>
+<tr class="row-even"><td><p>A8LJX5</p></td>
+<td><p>Complete proteome;Reference proteome</p></td>
+<td><p>Dshi_0052</p></td>
+</tr>
+<tr class="row-odd"><td><p>A8LJX6</p></td>
+<td><p>Complete proteome;Reference proteome</p></td>
+<td><p>Dshi_0053</p></td>
+</tr>
+<tr class="row-even"><td><p>A8LJX7</p></td>
+<td><p>Complete proteome;Reference proteome;Transferase</p></td>
+<td><p>gst2 Dshi_0054</p></td>
+</tr>
+<tr class="row-odd"><td><p>A8LJX8</p></td>
+<td><p>Complete proteome;Nucleotidyltransferase;Reference proteome;Transferase</p></td>
+<td><p>holA Dshi_0055</p></td>
+</tr>
+<tr class="row-even"><td><p>A8LJX9</p></td>
+<td><p>Complete proteome;Reference proteome</p></td>
+<td><p>Dshi_0056</p></td>
+</tr>
+<tr class="row-odd"><td><p>A8LJY0</p></td>
+<td><p>ATP-binding;Aminoacyl-tRNA synthetase;Complete proteome;Cytoplasm;Ligase;Nucleotide-binding;Protein biosynthesis;Reference proteome</p></td>
+<td><p>leuS Dshi_0057</p></td>
+</tr>
+<tr class="row-even"><td><p>A8LJY0</p></td>
+<td><p>ATP-binding;Aminoacyl-tRNA synthetase;Complete proteome;Cytoplasm;Ligase;Nucleotide-binding;Protein biosynthesis;Reference proteome</p></td>
+<td><p>leuS Dshi_0057</p></td>
+</tr>
+<tr class="row-odd"><td><p>A8LJY1</p></td>
+<td><p>Chaperone;Complete proteome;Lipoprotein;Protein transport;Reference proteome;Transport</p></td>
+<td><p>lolA Dshi_0058</p></td>
+</tr>
+<tr class="row-even"><td><p>A8LJY2</p></td>
+<td><p>ATP-binding;Cell cycle;Cell division;Cell membrane;Chromosome partition;Complete proteome;DNA-binding;Membrane;Nucleotide-binding;Reference proteome;Transmembrane;Transmembrane helix</p></td>
+<td><p>ftsK Dshi_0059</p></td>
+</tr>
+<tr class="row-odd"><td><p>A8LJY3</p></td>
+<td><p>Aminotransferase;Complete proteome;Reference proteome;Transferase</p></td>
+<td><p>Dshi_0060</p></td>
+</tr>
+<tr class="row-even"><td><p>A8LJY4</p></td>
+<td><p>Complete proteome;Reference proteome</p></td>
+<td><p>Dshi_0061</p></td>
+</tr>
+<tr class="row-odd"><td><p>A8LJY5</p></td>
+<td><p>Complete proteome;Oxidoreductase;Reference proteome</p></td>
+<td><p>ubiH Dshi_0062</p></td>
+</tr>
+</tbody>
+</table>
+<hr class="docutils" />
+<p>More detailed information can be found in the documentation.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Protein Finder 0.9 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Martin Zembaty.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+    </div>
+  </body>
+</html>
