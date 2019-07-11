@@ -8,6 +8,20 @@ hours or even days of time.
 Usage
 ========
 
+API-KEY
+-------
+
+Before proteinFinder.py can be used, a line in the code has to be changed. Since NCBI search
+requires an identification key or API-KEY, the first thing to do is to create an account
+on [NCBI](https://www.ncbi.nlm.nih.gov/). Next it is best to follow 
+[this guide](https://ncbiinsights.ncbi.nlm.nih.gov/2017/11/02/new-api-keys-for-the-e-utilities/)
+to acquire the key. The API key needs to be inserted into the following line of code in
+proteinFinder.py:
+
+    apiKey = "INSERT YOUR KEY HERE"
+
+Once this is done, the program has its full functionality.
+
 Basic Functionality
 -------------------
 
@@ -107,23 +121,23 @@ of the querys:
     Query 12 of 12
 
 The information found by the search are summed up in the table. The resulting
-table in 'proteinInformation.csv'should look similar to this:
+table in 'proteinInformation.csv' should look similar to this:
 
-| query     | ID_NCBI   | Entry  | Protein names                              | Gene names     | Protein existence      |
-|-----------|-----------|--------|--------------------------------------------|----------------|------------------------|
-| Dshi_0051 | 157910367 | A8LJX4 | Uncharacterized protein                    | Dshi_0051      | Predicted              |
-| Dshi_0052 | 157910368 | A8LJX5 | Uncharacterized protein                    | Dshi_0052      | Predicted              |
-| Dshi_0053 | 157910369 | A8LJX6 | HI0933 family protein                      | Dshi_0053      | Predicted              |
-| Dshi_0054 | 157910370 | A8LJX7 | Glutathione S-transferase like protein     | gst2 Dshi_0054 | Predicted              |
-| Dshi_0055 | 157910371 | A8LJX8 | DNA polymerase III, delta subunit          | holA Dshi_0055 | Predicted              |
-| Dshi_0056 | 157910372 | A8LJX9 | Uncharacterized protein                    | Dshi_0056      | Predicted              |
-| Dshi_0057 | 189082998 | A8LJY0 | Leucine--tRNA ligase                       | leuS Dshi_0057 | Inferred from homology |
-| Dshi_0057 | 157910373 | A8LJY0 | Leucine--tRNA ligase                       | leuS Dshi_0057 | Inferred from homology |
-| Dshi_0058 | 157910374 | A8LJY1 | Outer-membrane lipoprotein carrier protein | lolA Dshi_0058 | Inferred from homology |
-| Dshi_0059 | 157910375 | A8LJY2 | DNA translocase                            | ftsK Dshi_0059 | Inferred from homology |
-| Dshi_0060 | 157910376 | A8LJY3 | Aminotransferase class I and II            | Dshi_0060      | Predicted              |
-| Dshi_0061 | 157910377 | A8LJY4 | Amidase                                    | Dshi_0061      | Inferred from homology |
-| CC_2_9    | Not Found |        |                                            |                |                        |
+| query     | ID_NCBI   | Entry  | Gene names      | ... |
+|-----------|-----------|--------|-----------------|-----|
+| Dshi_0052 | 157910368 | A8LJX5 | Dshi_0052       | ... |
+| Dshi_0053 | 157910369 | A8LJX6 | Dshi_0053       | ... |
+| Dshi_0054 | 157910370 | A8LJX7 | gst2 Dshi_0054  | ... |
+| Dshi_0055 | 157910371 | A8LJX8 | holA Dshi_0055  | ... |
+| Dshi_0056 | 157910372 | A8LJX9 | Dshi_0056       | ... |
+| Dshi_0057 | 189082998 | A8LJY0 | leuS Dshi_0057  | ... |
+| Dshi_0057 | 157910373 | A8LJY0 | leuS Dshi_0057  | ... |
+| Dshi_0058 | 157910374 | A8LJY1 | lolA Dshi_0058  | ... |
+| Dshi_0059 | 157910375 | A8LJY2 | ftsK Dshi_0059  | ... |
+| Dshi_0060 | 157910376 | A8LJY3 | Dshi_0060       | ... |
+| Dshi_0061 | 157910377 | A8LJY4 | Dshi_0061       | ... |
+| Dshi_0062 | 157910378 | A8LJY5 | ubiH Dshi_0062  | ... |
+| Dshi_0063 | 157910379 | A8LJY6 | suhB2 Dshi_0063 | ... |
 
 The table stores the original query, the IDs found in NCBI and the Uniport
 entry. Overall the search was successful. However there are 2 interesting
@@ -139,11 +153,51 @@ Searching NCBI
 
 To query NCBI you need to specify which database should be queried. A full list
 of all names can be found [here](https://www.ncbi.nlm.nih.gov/books/NBK25497/table/chapter2.T._entrez_unique_identifiers_ui/?report=objectonly).
-Right now only text search is available for NCBI.
+Right now only text search is available for NCBI. 
 
 
-    python3 proteinFinder.py genes.csv proteinInformation.csv ncbi -db protein
+    python3 proteinFinder.py inputFile outputFile ncbi -db protein
 
+If no -db flag is typed in the default value will be the protein database.
+
+## Example
+Starting from a table genes.csv with gene loci, the corresponding ncbi accession numbers
+should be acquire.
+
+| gene_loci |
+|-----------|
+| Dshi_0051 |
+| Dshi_0052 |
+| Dshi_0053 |
+| Dshi_0054 |
+| Dshi_0055 |
+| Dshi_0056 |
+| Dshi_0057 |
+| Dshi_0057 |
+| Dshi_0058 |
+| Dshi_0059 |
+| Dshi_0060 |
+| Dshi_0061 |
+| CC_2_9    |
+
+    python3 proteinFinder.py genes.csv geneInfo.csv ncbi
+
+This command outputs geneInfo.csv:
+
+| query     | ID_NCBI   |
+|-----------|-----------|
+| Dshi_0051 | 157910367 |
+| Dshi_0052 | 157910368 |
+| Dshi_0053 | 157910369 |
+| Dshi_0054 | 157910370 |
+| Dshi_0055 | 157910371 |
+| Dshi_0056 | 157910372 |
+| Dshi_0057 | 189082998 |
+| Dshi_0057 | 157910373 |
+| Dshi_0058 | 157910374 |
+| Dshi_0059 | 157910375 |
+| Dshi_0060 | 157910376 |
+| Dshi_0061 | 157910377 |
 
 Searching Uniprot
 -----------------
@@ -184,7 +238,8 @@ With UniProt querys the information, which should be retrieved, can be
 controled with the --columns flag. The column names have to be seperated by a comma. All possible columns are listed on
 the [UniProt website] (https://www.uniprot.org/help/uniprotkb_column_names).
 
-    python3 proteinFinder.py inputFile outputFile uniprot --columns "id,keywords,genes,organism"
+    python3 proteinFinder.py inputFile outputFile
+        uniprot --columns "id,keywords,genes,organism"
 
 
 If not specified the default values are:
@@ -202,6 +257,69 @@ If not specified the default values are:
 * families
 * sequence
 
+### Examples
+
+The starting point will be the following table, which is a list of uniprot accesion numbers of proteins:
+
+| uniprot_id |
+|------------|
+| A8LJX5     |
+| A8LJX6     |
+| A8LJX7     |
+| A8LJX8     |
+| A8LJX9     |
+| A8LJY0     |
+| A8LJY0     |
+| A8LJY1     |
+| A8LJY2     |
+| A8LJY3     |
+| A8LJY4     |
+| A8LJY5     |
+| A8LJY6     |
+
+To extract the information from UniProt, the following command will be used:
+
+    python3 proteinFinder.py proteins.csv proteinInformation.csv uniprot -i id
+
+The program requests information about the accesion numbers, which after success results in the following table:
+
+| Entry  | Protein names                                                      | Gene names      |  ... |
+|--------|--------------------------------------------------------------------|-----------------|------|
+| A8LJX5 | Uncharacterized protein                                            | Dshi_0052       | ...  |
+| A8LJX6 | HI0933 family protein                                              | Dshi_0053       | ...  |
+| A8LJX7 | Glutathione S-transferase like protein (EC 2.5.1.18)               | gst2 Dshi_0054  | ...  |
+| A8LJX8 | DNA polymerase III, delta subunit (EC 2.7.7.7)                     | holA Dshi_0055  | ...  |
+| A8LJX9 | Uncharacterized protein                                            | Dshi_0056       | ...  |
+| A8LJY0 | Leucine--tRNA ligase (EC 6.1.1.4) (Leucyl-tRNA synthetase) (LeuRS) | leuS Dshi_0057  | ...  |
+| A8LJY0 | Leucine--tRNA ligase (EC 6.1.1.4) (Leucyl-tRNA synthetase) (LeuRS) | leuS Dshi_0057  | ...  |
+| A8LJY1 | Outer-membrane lipoprotein carrier protein                         | lolA Dshi_0058  | ...  |
+| A8LJY2 | DNA translocase                                                    | ftsK Dshi_0059  | ...  |
+| A8LJY3 | Aminotransferase class I and II                                    | Dshi_0060       | ...  |
+| A8LJY4 | Amidase                                                            | Dshi_0061       | ...  |
+| A8LJY5 | 2-octaprenyl-6-methoxyphenol hydroxylase (EC 1.14.13.-)            | ubiH Dshi_0062  | ...  |
+| A8LJY6 | Inositol-phosphate phosphatase (EC 3.1.3.25)                       | suhB2 Dshi_0063 | ...  |
+
+With alternating the columns using the --columns flag the information requested will be changed:
+
+    python3 proteinFinder.py proteins.csv proteinInformation.csv 
+        uniprot -i id --columns "id,keywords,genes"
+
+| Entry  | Keywords                                                                | Gene names      |
+|--------|-------------------------------------------------------------------------|-----------------|
+| A8LJX5 | Complete proteome;Reference proteome                                    | Dshi_0052       |
+| A8LJX6 | Complete proteome;Reference proteome                                    | Dshi_0053       |
+| A8LJX7 | Complete proteome;Reference proteome;Transferase                        | gst2 Dshi_0054  |
+| A8LJX8 | Complete proteome;Nucleotidyltransferase;Reference proteome;Transferase | holA Dshi_0055  |
+| A8LJX9 | Complete proteome;Reference proteome                                    | Dshi_0056       |
+| A8LJY0 | ATP-binding;Aminoacyl-tRNA synthetase;Complete proteome                 | leuS Dshi_0057  |
+| A8LJY0 | ATP-binding;Aminoacyl-tRNA synthetase;Complete proteome                 | leuS Dshi_0057  |
+| A8LJY1 | Chaperone;Complete proteome;Lipoprotein;Protein transport               | lolA Dshi_0058  |
+| A8LJY2 | ATP-binding;Cell cycle;Cell division;Cell membrane;Chromosome partition | ftsK Dshi_0059  |
+| A8LJY3 | Aminotransferase;Complete proteome;Reference proteome;Transferase       | Dshi_0060       |
+| A8LJY4 | Complete proteome;Reference proteome                                    | Dshi_0061       |
+| A8LJY5 | Complete proteome;Oxidoreductase;Reference proteome                     | ubiH Dshi_0062  |
+| A8LJY6 | Complete proteome;Hydrolase;Reference proteome                          | suhB2 Dshi_0063 |
+
 Searching NCBI + Uniprot
 ------------------------
 To search both databases consecutive there is a shortcut.
@@ -212,7 +330,9 @@ The results of the NCBI search will be the input of the UniProt search
 and the final results will be saved in the outputFile. The same flags are
 avialable for this shortcut as for the single commands.
 
-    python3 proteinFinder.py genes.csv proteinInformation.csv  ncbi+uniprot --inputDataType --database db --organism species --inputDataType id --columns columns 
+    python3 proteinFinder.py genes.csv proteinInformation.csv  ncbi+uniprot
+        --inputDataType id --idType --database db --organism species
+        --columns columns 
 
 ----------------
 

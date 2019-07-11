@@ -41,7 +41,8 @@ def initArguments():
     parser.add_argument("-i", "--inputDataType", choices=['text', 'id'],
                         default='text', help="Type of data stored in "
                         "input File")
-    parser.add_argument("--idType", help="What database the IDs are from?")
+    parser.add_argument("--idType", help="What database the IDs are from?",
+                        default="ACC+ID")
     args = parser.parse_args()
     return args
 
